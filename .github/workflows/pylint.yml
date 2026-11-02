@@ -23,13 +23,12 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pyinstaller PyQt6-WebEngine
+        pip install pyinstaller
         if (Test-Path "requirements.txt") { pip install -r requirements.txt }
 
     - name: Build with PyInstaller
       run: |
-        # --collect-all PyQt6 гарантирует, что WebEngine и все его DLL-ки попадут в сборку
-        # Замени main.py на имя твоего главного файла, если оно отличается
+        # --collect-all PyQt6 автоматически упакует весь движок WebEngine внутрь .exe
         pyinstaller --onefile --noconsole --collect-all PyQt6 --add-data "assets;assets" main.py
 
     - name: Upload compiled artifact
