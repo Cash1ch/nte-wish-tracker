@@ -17,7 +17,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.14"
+        python-version: "3.12"
         cache: 'pip'
 
     - name: Install dependencies
@@ -28,7 +28,7 @@ jobs:
 
     - name: Build with PyInstaller
       run: |
-        # --collect-all PyQt6 автоматически упакует весь движок WebEngine внутрь .exe
+        # --collect-all PyQt6 гарантирует упаковку WebEngine и всех его библиотек
         pyinstaller --onefile --noconsole --collect-all PyQt6 --add-data "assets;assets" main.py
 
     - name: Upload compiled artifact
