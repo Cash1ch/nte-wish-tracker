@@ -775,10 +775,16 @@ class MapMixin:
         try:
             from PyQt6.QtWebEngineWidgets import QWebEngineView
             from PyQt6.QtWebEngineCore import QWebEngineProfile, QWebEnginePage
-        except Exception:
+        except Exception as e:
+            # показываем настоящую причину: чаще всего это не «модуля нет», а несовпадение версий
+            # PyQt6 / PyQt6-WebEngine (должны быть одной линейки, например все 6.11.x)
             self._map_hint.setText(
-                "Для встроенной карты нужен модуль QtWebEngine:\n"
-                "pip install PyQt6-WebEngine\n\nПока карту можно открыть в браузере.")
+                "Не удалось загрузить встроенную карту (QtWebEngine).\n\n"
+                f"Причина: {type(e).__name__}: {e}\n\n"
+                "Если модуль не установлен: pip install PyQt6-WebEngine\n"
+                "Версии PyQt6, PyQt6-Qt6, PyQt6-WebEngine и PyQt6-WebEngine-Qt6 должны быть одной линейки "
+                "(см. requirements.txt).\n\nПока карту можно открыть в браузере.")
+            self._map_hint.setWordWrap(True)
             btn = QPushButton("Открыть карту в браузере")
             btn.clicked.connect(lambda: QDesktopServices.openUrl(QUrl(self.MAP_URL)))
             self._map_lay.addWidget(btn)

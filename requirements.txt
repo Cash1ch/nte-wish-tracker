@@ -1,5 +1,10 @@
-PyQt6
-PyQt6-WebEngine
+# ВАЖНО: версии Qt-пакетов должны быть одной линейки (6.11.x). Если оставить просто «PyQt6»,
+# pip возьмёт самую новую (например 6.12), а PyQt6-WebEngine отстаёт (6.11) — и встроенная
+# карта (QtWebEngine) не загрузится.
+PyQt6~=6.11.0
+PyQt6-Qt6~=6.11.0
+PyQt6-WebEngine~=6.11.0
+PyQt6-WebEngine-Qt6~=6.11.0
 requests
 pytesseract
 pillow
