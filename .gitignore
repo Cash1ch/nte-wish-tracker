@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+build/
+dist/
+*.spec
+
+# личные данные
+*.db
+.write_test
+
+# Tesseract не хранится в репозитории (см. README) — выкладывайте его в Releases
+Tesseract-OCR/
