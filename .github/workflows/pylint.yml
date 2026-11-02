@@ -1,38 +1,46 @@
-name: Build EXE
+name: Build Windows exe
 
 on:
+  workflow_dispatch:        # запуск вручную: вкладка Actions -> Run workflow
   push:
-    branches: [ "main", "master" ]
-  pull_request:
-    branches: [ "main", "master" ]
+    tags: ["v*"]            # или при создании тега v1.0.0 и т.п.
 
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.12"
-        cache: 'pip'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install pyinstaller
-        if (Test-Path "requirements.txt") { pip install -r requirements.txt }
+      - name: Установка зависимостей
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
 
-    - name: Build with PyInstaller
-      run: |
-        # Принудительно собираем PyQt6 и WebEngine со всеми зависимостями и DLL
-        pyinstaller --onefile --noconsole --collect-all PyQt6 --collect-all PyQt6_WebEngine --add-data "assets;assets" main.py
+      # Если версии Qt-пакетов не совпадают или QtWebEngine не грузится — сборка остановится здесь,
+      # а не выдаст exe с нерабочей картой.
+      - name: Проверка Qt и QtWebEngine
+        run: python tools/check_webengine.py
 
-    - name: Upload compiled artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: windows-exe
-        path: dist/*.exe
+      - name: Сборка exe
+        run: pyinstaller --noconfirm --onefile --windowed --name NTE_Wish_Tracker main.py
+
+      - name: Подготовка папки релиза
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force release | Out-Null
+          Copy-Item dist\NTE_Wish_Tracker.exe release\
+          foreach ($d in "assets", "icons") {
+            if (Test-Path $d) { Copy-Item -Recurse $d "release\$d" }
+          }
+          Copy-Item README.md release\
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-exe
+          path: release
